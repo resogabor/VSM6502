@@ -1,0 +1,59 @@
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Windows shortcuts
+*.lnk
+
+# =========================
+# Operating System Files
+# =========================
+
+# OSX
+# =========================
+
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+.vs
+Debug
+x64
+/Release/Backup Of TestJig.pdsbak
+/Release/Last Loaded TestJig.pdsbak
+/Release/pasmo.exe
+/Release/sjasmplus.exe
+/Release/test.hex
+/Release/test.lst
+/Release/VSMZ80.dll
+/Release/TestJig.pdsprj.DESKTOP-T0DLQB1.resog.workspace
+/Release/VSM6502.dll
