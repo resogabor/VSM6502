@@ -2,7 +2,7 @@
 #include "DsimModel.h"
 
 
-#define DEBUG
+//#define DEBUG
 //static z80_t cpu;
 //static uint64_t pins;
 //
@@ -64,20 +64,32 @@ UINT8 DsimModel::GetData(void) {							// Reads a value from the data bus
 }
 
 void DsimModel::SetCPUState(ABSTIME time) {
-	const uint16_t addr = M6502_GET_ADDR(pins);
-	SetAddr(addr, time);
+	//input pins
+	ishigh(pin_IRQ->istate()) ? pins = pins & ~M6502_IRQ : pins = pins | M6502_IRQ;
+	ishigh(pin_NMI->istate()) ? pins = pins & ~M6502_NMI : pins = pins | M6502_NMI;
+	ishigh(pin_RES->istate()) ? pins = pins & ~M6502_RES : pins = pins | M6502_RES;
+	ishigh(pin_RDY->istate()) ? pins = pins | M6502_RDY : pins = pins & ~M6502_RDY;
+	//output pins
+	(pins & M6502_RW) ? pin_RW->SetLow : pin_RW->SetHigh;
+	(pins & M6502_SYNC) ? pin_SYNC->SetLow : pin_SYNC->SetHigh;	
+}
+
+void DsimModel::UpdateData(ABSTIME time)
+{
+	uint64_t val;
 	if (pins & M6502_RW) {
 		/* memory read */
-		uint8_t val = GetData();
+		val = GetData();
 		M6502_SET_DATA(pins, val);
 	}
 	else {
 		/* memory write */
-		uint8_t val = M6502_GET_DATA(pins);
+		val = M6502_GET_DATA(pins);
 		SetData(val, time);
 		HIZData(time + 20000);
 	}
-
+	sprintf_s(LogMessage, "     Address: 0x%X  data: 0x%X   Status: 0x%llX", M6502_GET_ADDR(pins), M6502_GET_DATA(pins), pins);
+	InfoLog(LogMessage);
 }
 
 INT DsimModel::isdigital(CHAR *pinname) {
@@ -150,14 +162,14 @@ BOOL DsimModel::indicate(REALTIME time, ACTIVEDATA *data) {
 }
 
 VOID DsimModel::clockstep(ABSTIME time, DSIMMODES mode) {
+	//SetCPUState(time);
 	if (pin_CLK->isposedge()) {
-		SetCPUState(time);
+		//SetCPUState(time);
+		UpdateData(time);
 		pins = m6502_tick(&cpu, pins);
-		SetCPUState(time);
-#ifdef DEBUG
-		sprintf_s(LogMessage, "     Address: 0x%X  data  : 0x%X", M6502_GET_ADDR(pins), M6502_GET_DATA(pins));
-		InfoLog(LogMessage);
-#endif // DEBUG
+		const uint16_t addr = M6502_GET_ADDR(pins);
+		SetAddr(addr, time);
+		SetCPUState(time + 1);		
 		if (0 == (pins & M6502_SYNC)) {
 			sprintf_s(LogMessage, "cyle number is: %d", cycle);
 			InfoLog(LogMessage);

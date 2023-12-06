@@ -4,8 +4,8 @@
 #include "m6502.h"
 
 
-#define InfoLog(__s__) sprintf_s(LogLineT, "%05d: ", LogLine++); myPopup->print(LogLineT); myPopup->print(__s__); myPopup->print("\n")
-
+//#define InfoLog(__s__) sprintf_s(LogLineT, "%05d: ", LogLine++); myPopup->print(LogLineT); myPopup->print(__s__); myPopup->print("\n")
+#define InfoLog(__s__) myPopup->print(__s__); myPopup->print("\n")
 //#define DEBUGCALLS
 
 #define SetHigh drivestate(time, SHI)
@@ -33,6 +33,7 @@ private:
 	void HIZAddr(ABSTIME time);
 	void HIZData(ABSTIME time);
 	void SetCPUState(ABSTIME time);
+	void UpdateData(ABSTIME time);
 	
 
 	IINSTANCE *inst;
