@@ -27,13 +27,15 @@ public:
 	VOID callback (ABSTIME time, EVENTID eventid);
 	
 private:
-	VOID SetAddr(UINT16 val, ABSTIME time);
-	VOID SetData(UINT8 val, ABSTIME time);
-	UINT8 GetData(void);
+	VOID SetAddr(uint16_t val, ABSTIME time);
+	VOID SetData(uint8_t val, ABSTIME time);
+	uint8_t GetData(void);
 	void HIZAddr(ABSTIME time);
 	void HIZData(ABSTIME time);
-	void SetCPUState(ABSTIME time);
 	void UpdateData(ABSTIME time);
+	void ReadInputControlPins();
+	void SetOutputControlPins(ABSTIME time);
+	void DebugLog();
 	
 
 	IINSTANCE *inst;
@@ -56,6 +58,7 @@ private:
 	int LogLine = 1;
 	char LogLineT[10];
 	char LogMessage[256];
+	char DebugMessage[256];
 
 	m6502_t cpu;
 	m6502_desc_t m6502_desc;

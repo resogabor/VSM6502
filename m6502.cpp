@@ -216,6 +216,7 @@ static inline void _m6502_sbx(m6502_t* cpu, uint8_t v) {
 uint64_t m6502_init(m6502_t* c, const m6502_desc_t* desc) {
     //CHIPS_ASSERT(c && desc);
     memset(c, 0, sizeof(*c));
+    
     c->P = M6502_ZF;
     c->bcd_enabled = !desc->bcd_disabled;
     c->PINS = M6502_RW | M6502_SYNC | M6502_RES;
@@ -224,6 +225,8 @@ uint64_t m6502_init(m6502_t* c, const m6502_desc_t* desc) {
     c->user_data = desc->m6510_user_data;
     c->io_pullup = desc->m6510_io_pullup;
     c->io_floating = desc->m6510_io_floating;
+    c->brk_flags |= M6502_BRK_RESET;
+    
     return c->PINS;
 }
 
@@ -372,7 +375,7 @@ uint64_t m6502_tick(m6502_t* c, uint64_t pins) {
     case (0x00 << 3) | 0: _SA(c->PC); break;
     case (0x00 << 3) | 1: if (0 == (c->brk_flags & (M6502_BRK_IRQ | M6502_BRK_NMI))) { c->PC++; }_SAD(0x0100 | c->S--, c->PC >> 8); if (0 == (c->brk_flags & M6502_BRK_RESET)) { _WR(); }break;
     case (0x00 << 3) | 2: _SAD(0x0100 | c->S--, c->PC); if (0 == (c->brk_flags & M6502_BRK_RESET)) { _WR(); }break;
-    case (0x00 << 3) | 3: _SAD(0x0100 | c->S--, c->P | M6502_XF); if (c->brk_flags & M6502_BRK_RESET) { c->AD = 0xFFFC; }
+    case (0x00 << 3) | 3: _SAD(0x0100 | c->S--, c->P | M6502_XF); if (c->brk_flags & M6502_BRK_RESET) {c->AD = 0xFFFC; }
                         else { _WR(); if (c->brk_flags & M6502_BRK_NMI) { c->AD = 0xFFFA; } else { c->AD = 0xFFFE; } }break;
     case (0x00 << 3) | 4: _SA(c->AD++); c->P |= (M6502_IF | M6502_BF); c->brk_flags = 0; /* RES/NMI hijacking */break;
     case (0x00 << 3) | 5: _SA(c->AD); c->AD = _GD(); /* NMI "half-hijacking" not possible */break;
